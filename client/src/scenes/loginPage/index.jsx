@@ -1,35 +1,27 @@
-import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import React from 'react';
-import Form from './Form';
-
+import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
+import Form from "./Form";
+import "./Form.css";
 
 const LoginPage = () => {
   const theme = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   return (
-    <Box>
-      <Box
-        width="100%"
-        backgroundColor={theme.palette.background.alt}
-        p="1rem 6%"
-        textAlign="center"
-      >
-        <Typography fontWeight="bold" fontSize="32px" color="primary">
-          Sociopedia
-        </Typography>
-      </Box>
-
-      <Box
-        width={isNonMobileScreens ? "50%" : "93%"}
-        p="2rem"
-        m="2rem auto"
-        borderRadius="1.5rem"
-        backgroundColor={theme.palette.background.alt}
-      >
-        <Typography fontWeight="500" variant="h5" sx={{ mb: "1.5rem" }}>
-          Welcome to Socipedia, the Social Media for Sociopaths!
-        </Typography>
-        <Form />
+    <Box className={`container ${isNonMobileScreens ? "desktop" : "mobile"}`}>
+      <Box className="panels-container">
+        <Box className="panel left-panel">
+          <Box className="content">
+            <Typography variant="h3" className="title">Hello, Friend!</Typography>
+            <Typography variant="body1">Register with your personal details to use all of the site features</Typography>
+            <button className="btn transparent" id="sign-up-btn">Sign up</button>
+          </Box>
+        </Box>
+        <Box className="panel right-panel">
+          <Box className="content">
+            <Typography variant="h3" className="title">Sign In</Typography>
+            <Form />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
