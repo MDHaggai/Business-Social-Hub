@@ -2,15 +2,17 @@ import React from 'react';
 import { Typography, useTheme } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
+import "./AdvertWidget.css"; // Import the CSS file
 
 const AdvertWidget = () => {
   const { palette } = useTheme();
   const dark = palette.neutral.dark;
   const main = palette.neutral.main;
   const medium = palette.neutral.medium;
+  const background = palette.background.default; // Get the current background color
 
   return (
-    <WidgetWrapper>
+    <WidgetWrapper className="sticky-advert" style={{ backgroundColor: background }}>
       <FlexBetween>
         <Typography color={dark} variant="h5" fontWeight="500">
           Sponsored

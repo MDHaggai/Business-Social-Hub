@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
@@ -6,37 +5,28 @@ import PostWidget from "./PostWidget";
 
 const PostsWidget = ({ userId, isProfile = false }) => {
   const dispatch = useDispatch();
-  const posts = useSelector((state) => state.posts) || [];
+  const posts = useSelector((state) => state.posts || []); // Ensure posts is an array
   const token = useSelector((state) => state.token);
 
-  const fetchPosts = async (url) => {
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch posts: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        dispatch(setPosts({ posts: data }));
-      } else {
-        console.error("Unexpected response data format:", data);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  };
-
   const getPosts = async () => {
-    await fetchPosts("http://localhost:3001/posts");
+    const response = await fetch("http://localhost:3001/posts", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    dispatch(setPosts({ posts: data }));
   };
 
   const getUserPosts = async () => {
-    await fetchPosts(`http://localhost:3001/posts/${userId}/posts`);
+    const response = await fetch(
+      `http://localhost:3001/posts/${userId}/posts`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const data = await response.json();
+    dispatch(setPosts({ posts: data }));
   };
 
   useEffect(() => {
@@ -45,10 +35,11 @@ const PostsWidget = ({ userId, isProfile = false }) => {
     } else {
       getPosts();
     }
-  }, [isProfile, userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Ensure posts is an array before calling map
   if (!Array.isArray(posts)) {
-    return null; // Or return a fallback UI
+    return null;
   }
 
   return (
@@ -62,6 +53,9 @@ const PostsWidget = ({ userId, isProfile = false }) => {
           description,
           location,
           picturePath,
+          videoPath,
+          filePath,
+          audioPath,
           userPicturePath,
           likes,
           comments,
@@ -74,6 +68,9 @@ const PostsWidget = ({ userId, isProfile = false }) => {
             description={description}
             location={location}
             picturePath={picturePath}
+            videoPath={videoPath}
+            filePath={filePath}
+            audioPath={audioPath}
             userPicturePath={userPicturePath}
             likes={likes}
             comments={comments}

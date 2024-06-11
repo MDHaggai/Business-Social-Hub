@@ -1,0 +1,9 @@
+.sticky-widget {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px; /* Adjust this value to ensure it's below the navbar */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: inherit; /* Ensure it uses the background color from the theme */
+    padding: 1rem; /* Optional: Adjust padding as needed */
+  }
+  

@@ -29,7 +29,10 @@ import { setPosts } from "state";
 const MyPostWidget = ({ picturePath }) => {
   const dispatch = useDispatch();
   const [isImage, setIsImage] = useState(false);
-  const [image, setImage] = useState(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const [isAttachment, setIsAttachment] = useState(false);
+  const [isAudio, setIsAudio] = useState(false);
+  const [file, setFile] = useState(null);
   const [post, setPost] = useState("");
   const { palette } = useTheme();
   const { _id } = useSelector((state) => state.user);
@@ -42,9 +45,9 @@ const MyPostWidget = ({ picturePath }) => {
     const formData = new FormData();
     formData.append("userId", _id);
     formData.append("description", post);
-    if (image) {
-      formData.append("picture", image);
-      formData.append("picturePath", image.name);
+    if (file) {
+      formData.append("file", file);
+      formData.append("filePath", file.name);
     }
 
     const response = await fetch(`http://localhost:3001/posts`, {
@@ -54,8 +57,16 @@ const MyPostWidget = ({ picturePath }) => {
     });
     const posts = await response.json();
     dispatch(setPosts({ posts }));
-    setImage(null);
+    setFile(null);
     setPost("");
+    setIsImage(false);
+    setIsVideo(false);
+    setIsAttachment(false);
+    setIsAudio(false);
+  };
+
+  const handleDrop = (acceptedFiles) => {
+    setFile(acceptedFiles[0]);
   };
 
   return (
@@ -74,7 +85,7 @@ const MyPostWidget = ({ picturePath }) => {
           }}
         />
       </FlexBetween>
-      {isImage && (
+      {(isImage || isVideo || isAttachment || isAudio) && (
         <Box
           border={`1px solid ${medium}`}
           borderRadius="5px"
@@ -82,9 +93,19 @@ const MyPostWidget = ({ picturePath }) => {
           p="1rem"
         >
           <Dropzone
-            acceptedFiles=".jpg,.jpeg,.png"
+            acceptedFiles={
+              isImage
+                ? ".jpg,.jpeg,.png"
+                : isVideo
+                ? ".mp4,.mkv"
+                : isAttachment
+                ? ".pdf,.doc,.docx"
+                : isAudio
+                ? ".mp3,.wav"
+                : ""
+            }
             multiple={false}
-            onDrop={(acceptedFiles) => setImage(acceptedFiles[0])}
+            onDrop={handleDrop}
           >
             {({ getRootProps, getInputProps }) => (
               <FlexBetween>
@@ -96,18 +117,18 @@ const MyPostWidget = ({ picturePath }) => {
                   sx={{ "&:hover": { cursor: "pointer" } }}
                 >
                   <input {...getInputProps()} />
-                  {!image ? (
-                    <p>Add Image Here</p>
+                  {!file ? (
+                    <p>Add File Here</p>
                   ) : (
                     <FlexBetween>
-                      <Typography>{image.name}</Typography>
+                      <Typography>{file.name}</Typography>
                       <EditOutlined />
                     </FlexBetween>
                   )}
                 </Box>
-                {image && (
+                {file && (
                   <IconButton
-                    onClick={() => setImage(null)}
+                    onClick={() => setFile(null)}
                     sx={{ width: "15%" }}
                   >
                     <DeleteOutlined />
@@ -122,7 +143,12 @@ const MyPostWidget = ({ picturePath }) => {
       <Divider sx={{ margin: "1.25rem 0" }} />
 
       <FlexBetween>
-        <FlexBetween gap="0.25rem" onClick={() => setIsImage(!isImage)}>
+        <FlexBetween gap="0.25rem" onClick={() => {
+          setIsImage(!isImage);
+          setIsVideo(false);
+          setIsAttachment(false);
+          setIsAudio(false);
+        }}>
           <ImageOutlined sx={{ color: mediumMain }} />
           <Typography
             color={mediumMain}
@@ -134,19 +160,49 @@ const MyPostWidget = ({ picturePath }) => {
 
         {isNonMobileScreens ? (
           <>
-            <FlexBetween gap="0.25rem">
+            <FlexBetween gap="0.25rem" onClick={() => {
+              setIsVideo(!isVideo);
+              setIsImage(false);
+              setIsAttachment(false);
+              setIsAudio(false);
+            }}>
               <GifBoxOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Clip</Typography>
+              <Typography
+                color={mediumMain}
+                sx={{ "&:hover": { cursor: "pointer", color: medium } }}
+              >
+                Video
+              </Typography>
             </FlexBetween>
 
-            <FlexBetween gap="0.25rem">
+            <FlexBetween gap="0.25rem" onClick={() => {
+              setIsAttachment(!isAttachment);
+              setIsImage(false);
+              setIsVideo(false);
+              setIsAudio(false);
+            }}>
               <AttachFileOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Attachment</Typography>
+              <Typography
+                color={mediumMain}
+                sx={{ "&:hover": { cursor: "pointer", color: medium } }}
+              >
+                Attachment
+              </Typography>
             </FlexBetween>
 
-            <FlexBetween gap="0.25rem">
+            <FlexBetween gap="0.25rem" onClick={() => {
+              setIsAudio(!isAudio);
+              setIsImage(false);
+              setIsVideo(false);
+              setIsAttachment(false);
+            }}>
               <MicOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Audio</Typography>
+              <Typography
+                color={mediumMain}
+                sx={{ "&:hover": { cursor: "pointer", color: medium } }}
+              >
+                Audio
+              </Typography>
             </FlexBetween>
           </>
         ) : (

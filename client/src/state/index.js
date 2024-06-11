@@ -5,6 +5,9 @@ const initialState = {
   user: null,
   token: null,
   posts: [],
+  notifications: [],
+  unreadMessages: 0,
+  stories: [], // Add stories to the initial state
 };
 
 export const authSlice = createSlice({
@@ -39,9 +42,56 @@ export const authSlice = createSlice({
       });
       state.posts = updatedPosts;
     },
+    removePost: (state, action) => {
+      state.posts = state.posts.filter(post => post._id !== action.payload.postId);
+    },
+    addNotification: (state, action) => {
+      state.notifications.push(action.payload);
+    },
+    clearNotifications: (state) => {
+      state.notifications = [];
+    },
+    resetNotificationCount: (state) => {
+      state.notifications = state.notifications.map((notification) => ({ ...notification, viewed: true }));
+    },
+    setUnreadMessages: (state, action) => {
+      state.unreadMessages = action.payload;
+    },
+    resetUnreadMessages: (state) => {
+      state.unreadMessages = 0;
+    },
+    setStories: (state, action) => {
+      state.stories = action.payload.stories;
+    },
+    setStory: (state, action) => {
+      const updatedStories = state.stories.map((story) => {
+        if (story._id === action.payload.story._id) return action.payload.story;
+        return story;
+      });
+      state.stories = updatedStories;
+    },
+    removeStory: (state, action) => {
+      state.stories = state.stories.filter(story => story._id !== action.payload.storyId);
+    },
   },
 });
 
-export const { setMode, setLogin, setLogout, setFriends, setPosts, setPost } = authSlice.actions;
+export const {
+  setMode,
+  setLogin,
+  setLogout,
+  setFriends,
+  setPosts,
+  setPost,
+  removePost,
+  addNotification,
+  clearNotifications,
+  resetNotificationCount,
+  setUnreadMessages,
+  resetUnreadMessages,
+  setStories,
+  setStory,
+  removeStory,
+} = authSlice.actions;
 
 export default authSlice.reducer;

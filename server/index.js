@@ -12,11 +12,13 @@ import axios from "axios";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import postRoutes from "./routes/posts.js";
+import storyRoutes from "./routes/stories.js"; // Import story routes
 import { register } from "./controllers/auth.js";
 import { createPost } from "./controllers/posts.js";
 import { verifyToken } from "./middleware/auth.js";
 import User from "./models/User.js";
 import Post from "./models/Post.js";
+import cron from "node-cron";
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
@@ -44,7 +46,37 @@ const storage = multer.diskStorage({
     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
   },
 });
-const upload = multer({ storage: storage });
+
+
+
+// Schedule a job to run every hour
+cron.schedule("0 * * * *", async () => {
+  try {
+    const now = new Date();
+    const expiryDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    await Story.deleteMany({ createdAt: { $lt: expiryDate } });
+    console.log("Old stories deleted successfully");
+  } catch (error) {
+    console.error("Error deleting old stories:", error);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const fileTypes = /jpeg|jpg|png|mp4|mkv|pdf|doc|docx|mp3|wav/;
+  const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = fileTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb("Error: Files of this type are not allowed!");
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+});
 
 /* ROUTES WITH FILES */
 app.post("/auth/register", upload.single("picture"), async (req, res) => {
@@ -53,7 +85,7 @@ app.post("/auth/register", upload.single("picture"), async (req, res) => {
     .then(() => console.log('User data sent to chat server'))
     .catch(err => console.error('Failed to send user data to chat server:', err));
 });
-app.post("/posts", verifyToken, upload.single("picture"), createPost);
+app.post("/posts", verifyToken, upload.single("file"), createPost);
 
 /* ADDITIONAL ROUTES */
 app.get("/api/users", async (req, res) => {
@@ -69,6 +101,7 @@ app.get("/api/users", async (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
+app.use("/stories", storyRoutes); // Use story routes
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;

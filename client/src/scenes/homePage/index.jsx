@@ -7,6 +7,7 @@ import MyPostWidget from "scenes/widgets/MyPostWidget";
 import PostsWidget from "scenes/widgets/PostsWidget";
 import AdvertWidget from "scenes/widgets/AdvertWidget";
 import FriendListWidget from "scenes/widgets/FriendListWidget";
+import StoryWidget from "scenes/widgets/StoryWidget";
 
 const HomePage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
@@ -16,8 +17,20 @@ const HomePage = () => {
     <Box>
       <Navbar />
       <Box
+        position="fixed"
+        top="70px" 
+        width="100%"
+        zIndex={1000}
+        bgcolor="background.default"
+        boxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
+        p="1rem 6%"
+      >
+        <StoryWidget />
+      </Box>
+      <Box
         width="100%"
         padding="2rem 6%"
+        marginTop="170px" t
         display={isNonMobileScreens ? "flex" : "block"}
         gap="0.5rem"
         justifyContent="space-between"

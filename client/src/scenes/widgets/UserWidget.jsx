@@ -12,15 +12,19 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./UserWidget.css"; // Import the CSS file
 
 const UserWidget = ({ userId, picturePath }) => {
   const [user, setUser] = useState(null);
+  const [viewers, setViewers] = useState([]);
+  const [postImpressions, setPostImpressions] = useState({ likes: 0, comments: 0 });
   const { palette } = useTheme();
   const navigate = useNavigate();
   const token = useSelector((state) => state.token);
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
+  const background = palette.background.default; // Get the current background color
 
   const getUser = async () => {
     const response = await fetch(`http://localhost:3001/users/${userId}`, {
@@ -29,6 +33,10 @@ const UserWidget = ({ userId, picturePath }) => {
     });
     const data = await response.json();
     setUser(data);
+
+    // Assuming the backend provides the viewers' names and post impressions
+    setViewers(data.viewers || []);
+    setPostImpressions(data.postImpressions || { likes: 0, comments: 0 });
   };
 
   useEffect(() => {
@@ -44,13 +52,11 @@ const UserWidget = ({ userId, picturePath }) => {
     lastName,
     location,
     occupation,
-    viewedProfile,
-    impressions,
     friends,
   } = user;
 
   return (
-    <WidgetWrapper>
+    <WidgetWrapper className="sticky-widget" style={{ backgroundColor: background }}>
       {/* FIRST ROW */}
       <FlexBetween
         gap="0.5rem"
@@ -97,18 +103,23 @@ const UserWidget = ({ userId, picturePath }) => {
 
       {/* THIRD ROW */}
       <Box p="1rem 0">
-        <FlexBetween mb="0.5rem">
-          <Typography color={medium}>Who's viewed your profile</Typography>
-          <Typography color={main} fontWeight="500">
-            {viewedProfile}
-          </Typography>
-        </FlexBetween>
-        <FlexBetween>
-          <Typography color={medium}>Impressions of your post</Typography>
-          <Typography color={main} fontWeight="500">
-            {impressions}
-          </Typography>
-        </FlexBetween>
+        <Typography color={medium} mb="0.5rem">Who's viewed your profile</Typography>
+        {viewers.length === 0 ? (
+          <Typography color={main} fontWeight="500">No viewers yet</Typography>
+        ) : (
+          viewers.map((viewer, index) => (
+            <Typography key={index} color={main} fontWeight="500">
+              {viewer.name}
+            </Typography>
+          ))
+        )}
+      </Box>
+      <Divider />
+      <Box p="1rem 0">
+        <Typography color={medium} mb="0.5rem">Impressions of your post</Typography>
+        <Typography color={main} fontWeight="500">
+          {`Likes: ${postImpressions.likes}, Comments: ${postImpressions.comments}`}
+        </Typography>
       </Box>
 
       <Divider />

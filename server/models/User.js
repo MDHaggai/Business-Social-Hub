@@ -35,8 +35,30 @@ const UserSchema = new mongoose.Schema(
     },
     location: String,
     occupation: String,
-    viewedProfile: Number,
-    impressions: Number,
+    viewedProfile: {
+      type: Number,
+      default: 0,
+    },
+    viewers: [
+      {
+        userId: String,
+        name: String,
+      },
+    ],
+    impressions: {
+      type: Number,
+      default: 0,
+    },
+    postImpressions: {
+      likes: {
+        type: Number,
+        default: 0,
+      },
+      comments: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );
